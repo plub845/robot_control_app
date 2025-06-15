@@ -1,0 +1,43 @@
+name: robot_control_app
+description: "A new Flutter project."
+
+publish_to: 'none' # Remove this line if you want to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_bluetooth_serial: ^0.4.0 # 0.4.0 seems to be the latest stable, but its API might have changed.
+                                    # Let's try to adapt to common recent changes.
+  http: ^1.4.0
+  shared_preferences: ^2.2.2
+  cupertino_icons: ^1.0.8
+  url_launcher: ^6.3.0             # Updated to a more recent stable version
+  app_settings: ^5.1.1             # Updated to a more recent stable version.
+                                    # Note: This package's API can change frequently.
+  permission_handler: ^11.3.1      # Added this for robust permission handling, often used with Bluetooth/WiFi settings
+
+dev_dependencies:
+  flutter_launcher_icons: ^0.13.1
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/app_icon.png"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/arrow_up.png
+    - assets/images/arrow_down.png
+    - assets/images/arrow_left.png
+    - assets/images/arrow_right.png
