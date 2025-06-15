@@ -298,8 +298,10 @@ void setup() {
 
 void loop() {
   server.handleClient();
-##Arduino Uno/Nano พร้อม Bluetooth Module HC-05/HC-06 C++
 
+### 1.2 Arduino: Bluetooth Control 
+
+```cpp
 #include <SoftwareSerial.h>
 #include <ArduinoJson.h>
 
