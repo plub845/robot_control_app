@@ -298,7 +298,7 @@ void setup() {
 
 void loop() {
   server.handleClient();
-
+...
 ### 1.2 Arduino: Bluetooth Control 
 
 ```cpp
@@ -389,8 +389,10 @@ void loop() {
     handleCommand(command);
   }
 }
-1.3 ESP32 พร้อม Bluetooth Classic ในตัว
-C++
+...
+### 1.3 ESP32 พร้อม Bluetooth Classic ในตัว C++
+
+```cpp
 
 #include "BluetoothSerial.h"
 #include <ArduinoJson.h>
