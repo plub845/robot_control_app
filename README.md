@@ -1,184 +1,483 @@
----
+# แอปพลิเคชันควบคุมหุ่นยนต์ Flutter
 
-# แอปพลิเคชันควบคุมหุ่นยนต์
+แอปพลิเคชัน Flutter นี้ถูกออกแบบมาเพื่อควบคุมหุ่นยนต์ของคุณอย่างมืออาชีพผ่านการเชื่อมต่อ **Bluetooth Classic** หรือ **WiFi (HTTP)** มันมีส่วนติดต่อผู้ใช้ที่ใช้งานง่าย พร้อมด้วยฟังก์ชันการควบคุมการเคลื่อนที่, การปรับความเร็ว, การสตรีมวิดีโอจากกล้อง (สำหรับ ESP32-CAM) และการสั่งงานโหมดพิเศษของหุ่นยนต์ โครงสร้างรองรับหลายภาษาและธีมที่ปรับแต่งได้ พร้อมการบันทึกการตั้งค่าทั้งหมดอย่างถาวร
 
-นี่คือแอปพลิเคชัน Flutter ที่ออกแบบมาเพื่อควบคุมหุ่นยนต์โดยใช้ **บลูทูธ** หรือ **WiFi** อินเทอร์เฟซใช้งานง่าย มีปุ่มควบคุมทิศทาง การปรับความเร็ว และตัวเลือกในการดูวิดีโอจากกล้อง รวมถึงเปิดใช้งานโหมดติดตามเส้น แอปพลิเคชันรองรับหลายภาษา หลายธีม และการตั้งค่าต่าง ๆ จะถูกบันทึกไว้
+## คุณสมบัติหลัก
 
-## คุณสมบัติ
-
-* **การควบคุมทิศทาง**: คำสั่งเดินหน้า, ถอยหลัง, เลี้ยวซ้าย, เลี้ยวขวา และหยุด
-* **การควบคุมความเร็ว**: แถบเลื่อนปรับความเร็วได้
-* **ตัวเลือกการเชื่อมต่อ**:
-    * **บลูทูธคลาสสิก**: เชื่อมต่อกับอุปกรณ์ต่างๆ เช่น Arduino ที่มีโมดูล HC-05/06 หรือ ESP32 ที่มีบลูทูธในตัว
-    * **WiFi (HTTP)**: เชื่อมต่อกับ ESP32 ที่ทำหน้าที่เป็นเว็บเซิร์ฟเวอร์ เหมาะสำหรับ ESP32-CAM
-* **โหมดหุ่นยนต์**:
-    * **การควบคุมแบบแมนนวล**
-    * **โหมดติดตามเส้น** (เปิดใช้งานโหมดอัตโนมัติบนหุ่นยนต์)
-    * **มุมมองกล้อง** (แสดงสตรีมจาก ESP32-CAM ผ่าน HTTP)
-* **อินเทอร์เฟซที่ปรับแต่งได้**: สลับการแสดงผลของแถบเลื่อนความเร็ว, ปุ่มติดตามเส้น และปุ่มกล้อง
-* **การตั้งค่ากล้อง**: กำหนดความกว้าง, ความสูง, ความสว่าง, การหมุน, การซูมของภาพ และประเภทสตรีม (JPEG หรือ MJPEG)
-* **รองรับหลายภาษา**: ภาษาอังกฤษ, ภาษาไทย และภาษาจีน
-* **ธีม**: ธีมสว่าง, ธีมมืด, ธีมสีน้ำเงิน และธีมสีเขียว
-* **การตั้งค่าที่บันทึกถาวร**: การกำหนดค่าทั้งหมดจะถูกบันทึกโดยใช้ `shared_preferences`
-* **การจัดการสิทธิ์**: ร้องขอสิทธิ์บลูทูธที่จำเป็นเมื่อรันไทม์
-* **การแจ้งเตือนข้อผิดพลาด**: ให้ข้อความแสดงข้อผิดพลาดที่ชัดเจนสำหรับปัญหาการเชื่อมต่อพร้อมตัวเลือกในการเปิดการตั้งค่าอุปกรณ์ที่เกี่ยวข้อง
+* **การควบคุมการเคลื่อนที่ 5 ทิศทาง**: เดินหน้า, ถอยหลัง, เลี้ยวซ้าย, เลี้ยวขวา และหยุด (แบบกดค้างและปล่อย)
+* **การปรับความเร็วแบบละเอียด**: แถบเลื่อนปรับค่า PWM สำหรับมอเตอร์
+* **การเชื่อมต่อที่ยืดหยุ่น**:
+    * **Bluetooth Classic**: รองรับการเชื่อมต่อกับโมดูล HC-05/06 บน Arduino หรือ Bluetooth ในตัวของ ESP32
+    * **WiFi (HTTP)**: เหมาะอย่างยิ่งสำหรับ ESP32-CAM เพื่อการควบคุมและการสตรีมวิดีโอผ่านเครือข่าย
+* **โหมดการทำงานของหุ่นยนต์**:
+    * **โหมดควบคุมด้วยมือ**: ควบคุมการเคลื่อนที่โดยตรงผ่านแอป
+    * **โหมดติดตามเส้น**: สั่งงานให้หุ่นยนต์เข้าสู่โหมดขับเคลื่อนอัตโนมัติ (ต้องมีการเขียนเฟิร์มแวร์รองรับ)
+    * **มุมมองกล้อง**: แสดงผลวิดีโอสตรีมแบบ MJPEG จาก ESP32-CAM พร้อมการปรับแต่งคุณภาพของภาพ
+* **การปรับแต่งอินเทอร์เฟซ**: สามารถเปิด/ปิดการแสดงผลของแถบเลื่อนความเร็ว, ปุ่มติดตามเส้น, และปุ่มกล้องได้
+* **การตั้งค่ากล้องขั้นสูง**: กำหนดความกว้าง, ความสูง, ความสว่าง, การหมุน, และการซูมของภาพวิดีโอ รวมถึงประเภทสตรีม
+* **รองรับหลายภาษา**: มีภาษาอังกฤษ, ไทย, และจีนให้เลือกใช้งาน
+* **การปรับแต่งธีม**: เลือกธีมสว่าง, มืด, น้ำเงิน, หรือเขียว
+* **การบันทึกการตั้งค่าถาวร**: การกำหนดค่าผู้ใช้ทั้งหมดจะถูกบันทึกโดยใช้ `shared_preferences`
+* **การจัดการสิทธิ์อัตโนมัติ**: แอปจะร้องขอสิทธิ์ Bluetooth ที่จำเป็นเมื่อเริ่มต้น
+* **การแจ้งเตือนข้อผิดพลาดที่ชัดเจน**: แสดงข้อความผิดพลาดสำหรับการเชื่อมต่อพร้อมตัวเลือกในการเปิดการตั้งค่าอุปกรณ์ที่เกี่ยวข้อง
 
 ---
 
-## เริ่มต้นใช้งาน
+## ส่วนที่ 1: เฟิร์มแวร์หุ่นยนต์ (Arduino / ESP32)
 
-### ข้อกำหนดเบื้องต้น
+เลือกใช้โค้ดให้เหมาะสมกับฮาร์ดแวร์หุ่นยนต์ของคุณ
 
-ก่อนที่จะรันแอปพลิเคชัน ตรวจสอบให้แน่ใจว่าคุณมีสิ่งเหล่านี้:
+### 1.1 ESP32-CAM: WiFi Control & MJPEG Camera Stream
 
-* **Flutter SDK** ติดตั้งแล้ว
-* **Android Studio** หรือ **VS Code** พร้อมปลั๊กอิน Flutter และ Dart
-* อุปกรณ์ Android จริง หรืออีมูเลเตอร์สำหรับการทดสอบ
-* สำหรับบลูทูธ: บอร์ด Arduino (เช่น Uno, Nano) ที่มีโมดูลบลูทูธ HC-05/HC-06 หรือ ESP32
-* สำหรับ WiFi และกล้อง: บอร์ด ESP32-CAM
-* สิทธิ์ที่จำเป็นสำหรับแอป: การเข้าถึงบลูทูธและเครือข่าย (อินเทอร์เน็ต)
+```cpp
+#include "esp_camera.h"
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <WebServer.h>
+#include <ArduinoJson.h>
 
-### 1. การตั้งค่าแอป Flutter (main.dart)
+#define PWDN_GPIO_NUM     32
+#define RESET_GPIO_NUM    -1
+#define XCLK_GPIO_NUM      0
+#define SIOD_GPIO_NUM     26
+#define SIOC_GPIO_NUM     27
 
-1.  โคลน repository นี้ หรือสร้างโปรเจกต์ Flutter ใหม่ และคัดลอกโค้ด `main.dart` ลงในโฟลเดอร์ `lib` ของคุณ
-2.  ตรวจสอบให้แน่ใจว่าคุณมี dependencies ที่จำเป็นใน `pubspec.yaml` ของคุณ:
+#define Y9_GPIO_NUM       35
+#define Y8_GPIO_NUM       34
+#define Y7_GPIO_NUM       39
+#define Y6_GPIO_NUM       36
+#define Y5_GPIO_NUM       21
+#define Y4_GPIO_NUM       19
+#define Y3_GPIO_NUM       18
+#define Y2_GPIO_NUM        5
+#define VSYNC_GPIO_NUM    25
+#define HREF_GPIO_NUM     23
+#define PCLK_GPIO_NUM     22
 
-    ```yaml
-    dependencies:
-      flutter:
-        sdk: flutter
-      flutter_localizations:
-        sdk: flutter
-      flutter_bluetooth_serial: ^0.4.0 # สำหรับการสื่อสารบลูทูธ
-      shared_preferences: ^2.2.3 # สำหรับบันทึกการตั้งค่าแอป
-      http: ^1.2.1 # สำหรับการสื่อสาร WiFi (HTTP)
-      flutter_launcher_icons: ^0.13.1 # ไม่บังคับ: สำหรับไอคอนแอป
-      flutter_native_splash: ^2.4.0 # ไม่บังคับ: สำหรับหน้าจอ Splash
-      flutter/services.dart # เป็นส่วนหนึ่งของ Flutter อยู่แล้ว
-      app_settings: ^5.1.0 # สำหรับเปิดการตั้งค่าอุปกรณ์
-      permission_handler: ^11.3.1 # สำหรับตรวจสอบและร้องขอสิทธิ์
+#define LED_GPIO_NUM       4 
 
-    dev_dependencies:
-      flutter_test:
-        sdk: flutter
-      flutter_lints: ^3.0.0
-    ```
+const char* ssid = "ESP32_Robot_AP";
+const char* password = "robotpassword";
 
-3.  รัน `flutter pub get` ในไดเรกทอรีโปรเจกต์ของคุณเพื่อติดตั้ง dependencies
-4.  เพิ่มรูปภาพลูกศร (`arrow_up.png`, `arrow_down.png`, `arrow_left.png`, `arrow_right.png`) ไปยังโฟลเดอร์ `assets/images/` ในรูทโปรเจกต์ของคุณ และประกาศใน `pubspec.yaml`:
+WebServer server(80);
 
-    ```yaml
-    flutter:
-      uses-material-design: true
-      assets:
-        - assets/images/arrow_up.png
-        - assets/images/arrow_down.png
-        - assets/images/arrow_left.png
-        - assets/images/arrow_right.png
-    ```
+void setMotorSpeed(int speed) {
+  Serial.print("Setting motor speed to: ");
+  Serial.println(speed);
+}
 
-5.  **สำคัญ**: ตรวจสอบให้แน่ใจว่าคลาส `SettingsPage` และ `_SettingsPageState` ถูกกำหนดที่ **ระดับบนสุด** ของไฟล์ `main.dart` ของคุณ ไม่ได้อยู่ภายใน `_ControlPageState` หรือคลาสอื่น ๆ (ไฟล์ `main.dart` ที่ให้ไว้ก่อนหน้านี้ได้รับการแก้ไขแล้ว)
+void moveForward() {
+  Serial.println("Robot: Moving Forward!");
+}
 
-### 2. การตั้งค่าเฟิร์มแวร์หุ่นยนต์ (Arduino IDE)
+void moveBackward() {
+  Serial.println("Robot: Moving Backward!");
+}
 
-เลือกโค้ดที่เหมาะสมสำหรับฮาร์ดแวร์หุ่นยนต์ของคุณ:
+void turnLeft() {
+  Serial.println("Robot: Turning Left!");
+}
 
-#### ตัวเลือก A: ESP32 พร้อม WiFi (สำหรับ ESP32-CAM หรือการควบคุม WiFi ทั่วไป)
+void turnRight() {
+  Serial.println("Robot: Turning Right!");
+}
 
-โค้ดนี้จะทำให้ ESP32-CAM ของคุณทำหน้าที่เป็น Access Point โดยโฮสต์เว็บเซิร์ฟเวอร์สำหรับคำสั่งควบคุมและการสตรีมวิดีโอ MJPEG
+void stopMotors() {
+  Serial.println("Robot: Stopping!");
+}
 
-1.  **ติดตั้งบอร์ด ESP32**:
-    * เปิด Arduino IDE ไปที่ `File > Preferences > Additional Boards Manager URLs`
-    * เพิ่ม: `https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json`
-    * ไปที่ `Tools > Board > Boards Manager` ค้นหา "esp32" และติดตั้ง "esp32 by Espressif Systems"
-2.  **ติดตั้งไลบรารี ESP32 Camera**: โดยปกติจะรวมอยู่ในแพ็คเกจบอร์ด ESP32 แล้ว แต่ตรวจสอบให้แน่ใจว่ามีอยู่
-3.  **เลือกบอร์ด**: ไปที่ `Tools > Board > ESP32 Arduino` และเลือก `AI Thinker ESP32-CAM`
-4.  **อัปโหลดโค้ด**: คัดลอกโค้ด "ESP32 สำหรับ WiFi + Camera (MJPEG Stream)" ลงใน Arduino IDE และอัปโหลดไปยัง ESP32-CAM ของคุณ
-    * **หมายเหตุ**: คุณอาจต้องกดปุ่ม `RST` บน ESP32-CAM ระหว่างการอัปโหลดหากล้มเหลว
-5.  **การกำหนดค่า**:
-    * ปรับ `ssid` และ `password` ในโค้ด ESP32 หากคุณต้องการเปลี่ยนชื่อ/รหัสผ่าน AP
-    * หลังจากอัปโหลด ให้เปิด Serial Monitor (Baud Rate: 115200) เพื่อค้นหาที่อยู่ IP ของ ESP32 คุณจะป้อน IP นี้ในการตั้งค่าแอป Flutter
+void activateLineFollowMode() {
+  Serial.println("Robot: Activating Line Follow Mode!");
+}
 
-#### ตัวเลือก B: Arduino Uno/Nano พร้อมโมดูลบลูทูธ (เช่น HC-05/HC-06)
+void handleCommand(String jsonCommand) {
+  Serial.print("Received command JSON: ");
+  Serial.println(jsonCommand);
 
-โค้ดนี้จะช่วยให้ Arduino ของคุณรับคำสั่งผ่านโมดูลบลูทูธที่เชื่อมต่ออยู่
+  StaticJsonDocument<256> doc;
+  DeserializationError error = deserializeJson(doc, jsonCommand);
 
-1.  **การเชื่อมต่อฮาร์ดแวร์ (HC-05/HC-06 ไปยัง Arduino Uno/Nano)**:
-    * `HC-05/06 VCC` -> `Arduino 5V`
-    * `HC-05/06 GND` -> `Arduino GND`
-    * `HC-05/06 TX` -> `Arduino Digital Pin 10` (หรือ `RX` pin หากใช้ฮาร์ดแวร์ซีเรียล แต่ต้องถอดการเชื่อมต่อเพื่ออัปโหลด)
-    * `HC-05/06 RX` -> `Arduino Digital Pin 11` (หรือ `TX` pin หากใช้ฮาร์ดแวร์ซีเรียล)
-        * **สำคัญ**: สำหรับ HC-05/06 `RX` ไปยัง Arduino `TX` (ซึ่งเป็น 5V) คุณ **ต้องใช้ตัวแบ่งแรงดันไฟฟ้า** (เช่น ตัวต้านทานสองตัว, 1kΩ และ 2kΩ) เพื่อลดสัญญาณ 5V จาก Arduino ลงเป็น 3.3V ที่โมดูลบลูทูธคาดหวัง การไม่ทำเช่นนั้นอาจทำให้โมดูลเสียหายได้
-2.  **ติดตั้งไลบรารี `SoftwareSerial`**: นี่คือไลบรารีมาตรฐานของ Arduino โดยปกติจะติดตั้งมาล่วงหน้า
-3.  **อัปโหลดโค้ด**: คัดลอกโค้ด "สำหรับ Arduino Uno/Nano (ใช้ `SoftwareSerial`)" ลงใน Arduino IDE และอัปโหลดไปยังบอร์ด Arduino ของคุณ
-    * **หมายเหตุ**: หากคุณใช้ขา Serial ฮาร์ดแวร์ (0 และ 1) สำหรับโมดูลบลูทูธ ให้ถอดการเชื่อมต่อโมดูลระหว่างการอัปโหลดโค้ดเพื่อป้องกันการรบกวน
-4.  **การจับคู่**: บนอุปกรณ์ Android ของคุณ ให้ไปที่การตั้งค่าบลูทูธและจับคู่กับโมดูล HC-05/HC-06 ของคุณ (โดยปกติจะชื่อ "HC-05" หรือ "HC-06" รหัส PIN เริ่มต้นคือ "1234" หรือ "0000") จากนั้นแอป Flutter จะสามารถเชื่อมต่อกับอุปกรณ์ที่จับคู่นี้ได้
+  if (error) {
+    Serial.print(F("deserializeJson() failed: "));
+    Serial.println(error.f_str());
+    return;
+  }
 
-#### ตัวเลือก C: ESP32 พร้อมบลูทูธคลาสสิกในตัว
+  const char* action = doc["action"];
+  int speed = doc["speed"] | 0;
 
-โค้ดนี้ใช้ประโยชน์จากความสามารถบลูทูธดั้งเดิมของ ESP32
+  Serial.print("Action: "); Serial.println(action);
+  Serial.print("Speed: "); Serial.println(speed);
 
-1.  **ติดตั้งบอร์ด ESP32**: ทำตามขั้นตอนที่ 1 จาก "ตัวเลือก A" ข้างบน
-2.  **อัปโหลดโค้ด**: คัดลอกโค้ด "สำหรับ ESP32 (ใช้ Bluetooth Classic Built-in)" ลงใน Arduino IDE และอัปโหลดไปยัง ESP32 ของคุณ
-3.  **การจับคู่**: บนอุปกรณ์ Android ของคุณ ให้ไปที่การตั้งค่าบลูทูธและจับคู่กับอุปกรณ์ที่ชื่อ "ESP32_Robot" (หรือชื่อที่คุณตั้งค่าไว้ใน `SerialBT.begin()`)
+  setMotorSpeed(speed);
 
----
+  if (strcmp(action, "forward") == 0) {
+    moveForward();
+  } else if (strcmp(action, "backward") == 0) {
+    moveBackward();
+  } else if (strcmp(action, "left") == 0) {
+    turnLeft();
+  } else if (strcmp(action, "right") == 0) {
+    turnRight();
+  } else if (strcmp(action, "stop") == 0) {
+    stopMotors();
+  } else if (strcmp(action, "line") == 0) {
+    activateLineFollowMode();
+  } else if (strcmp(action, "camera") == 0) {
+    Serial.println("Camera settings received.");
+    sensor_t * s = esp_camera_sensor_get();
+    if (s) {
+      if (doc.containsKey("brightness")) {
+          float brightness_val = doc["brightness"];
+          s->set_brightness(s, (int8_t)(brightness_val * 4 - 2)); 
+          Serial.printf("Set brightness to: %f\n", brightness_val);
+      }
+      if (doc.containsKey("contrast")) {
+          float contrast_val = doc["contrast"];
+          s->set_contrast(s, (int8_t)(contrast_val * 4 - 2));
+          Serial.printf("Set contrast to: %f\n", contrast_val);
+      }
+    }
+  }
+}
 
-## การรันแอปพลิเคชัน
+void handle_jpg_stream(void) {
+  WiFiClient client = server.client();
+  if (!client.connected()) return;
 
-1.  ตรวจสอบให้แน่ใจว่าบอร์ดหุ่นยนต์ของคุณ (ESP32-CAM หรือ Arduino ที่มีบลูทูธ) เปิดอยู่และรันเฟิร์มแวร์ที่ถูกต้อง
-2.  เชื่อมต่ออุปกรณ์ Android ของคุณเข้ากับคอมพิวเตอร์
-3.  เปิดเทอร์มินัลหรือ Command Prompt ของคุณ นำทางไปยังไดเรกทอรีโปรเจกต์ Flutter ของคุณ
-4.  รัน `flutter run` เพื่อติดตั้งแอปพลิเคชันลงบนอุปกรณ์ของคุณ
-    * หากคุณมีอุปกรณ์หลายเครื่อง ให้ใช้ `flutter run -d <device_id>` (รับ ID อุปกรณ์จาก `flutter devices`)
+  Serial.println("JPG Stream connected!");
+  String response = "HTTP/1.1 200 OK\r\n";
+  response += "Content-Type: multipart/x-mixed-replace; boundary=--frame\r\n";
+  response += "\r\n";
+  server.sendContent(response);
 
----
+  camera_fb_t * fb = NULL;
+  esp_err_t res = ESP_OK;
+  size_t _jpg_buf_len = 0;
+  uint8_t * _jpg_buf = NULL;
+  char * part_buf[64];
 
-## การใช้งาน
+  while (client.connected()) {
+    fb = esp_camera_fb_get();
+    if (!fb) {
+      Serial.println("Camera capture failed");
+      res = ESP_FAIL;
+    } else {
+      if (fb->format != PIXFORMAT_JPEG) {
+        bool jpeg_converted = frame2jpg(fb, 80, &_jpg_buf, &_jpg_buf_len);
+        esp_camera_fb_return(fb);
+        fb = NULL;
+        if (!jpeg_converted) {
+          Serial.println("JPEG compression failed");
+          res = ESP_FAIL;
+        }
+      } else {
+        _jpg_buf = fb->buf;
+        _jpg_buf_len = fb->len;
+      }
+    }
+    if (res == ESP_OK) {
+      sprintf((char *)part_buf, "--frame\r\nContent-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n", _jpg_buf_len);
+      server.sendContent((char *)part_buf);
+      client.write(_jpg_buf, _jpg_buf_len);
+      server.sendContent("\r\n");
+    } else {
+      Serial.println("Failed to get frame, sending empty response.");
+      res = ESP_FAIL;
+    }
+    if (fb) {
+      esp_camera_fb_return(fb);
+      fb = NULL;
+      _jpg_buf = NULL;
+    } else if (_jpg_buf) {
+      free(_jpg_buf);
+      _jpg_buf = NULL;
+    }
+    if (res != ESP_OK) break;
+  }
+}
 
-1.  **สิทธิ์ของแอป**: ในการเปิดใช้งานครั้งแรก แอปจะขอสิทธิ์บลูทูธ อนุญาตสิทธิ์เหล่านั้น
-2.  **การตั้งค่า**:
-    * แตะ **ไอคอนการตั้งค่า** (รูปเฟือง) ใน AppBar
-    * **แสดงแถบเลื่อนความเร็ว, แสดงปุ่มติดตามเส้น, แสดงปุ่มกล้อง**: สลับสิ่งเหล่านี้เพื่อปรับแต่งหน้าจอควบคุมหลัก
-    * **ใช้ WiFi แทนบลูทูธ**: เลือกช่องนี้หากหุ่นยนต์ของคุณใช้ WiFi (เช่น ESP32-CAM)
-    * **WiFi IP**: หากเปิดใช้งาน "ใช้ WiFi" ให้ป้อนที่อยู่ IP ของ ESP32 ของคุณที่นี่ (เช่น `192.168.4.1`)
-    * **การตั้งค่ารูปภาพ**: ปรับพารามิเตอร์กล้องสำหรับ ESP32-CAM
-    * แตะ **บันทึก** เพื่อใช้การเปลี่ยนแปลง
-3.  **การควบคุม**:
-    * ใช้ **ปุ่มลูกศร** เพื่อส่งคำสั่งทิศทาง
-    * ใช้ **ปุ่ม STOP** เพื่อหยุดการเคลื่อนไหว
-    * ปรับ **ความเร็ว** โดยใช้แถบเลื่อน (หากเปิดใช้งาน)
-    * แตะ **ติดตามเส้น** เพื่อเปิดใช้งานโหมดติดตามเส้นบนหุ่นยนต์ (ต้องได้รับการสนับสนุนเฟิร์มแวร์หุ่นยนต์)
-    * แตะ **ดูกล้อง** เพื่อเปิดสตรีมกล้อง (หากเชื่อมต่อกับ ESP32-CAM ผ่าน WiFi และเปิดใช้งาน)
-4.  **ภาษาและธีม**:
-    * แตะ **ไอคอนภาษา** (ลูกโลก) เพื่อเปลี่ยนภาษาของแอป
-    * แตะ **ไอคอนธีม** (จานสี) เพื่อเปลี่ยนโทนสีของแอป
-5.  **วิธีใช้**: แตะ **ไอคอนช่วยเหลือ** (เครื่องหมายคำถาม) สำหรับคำแนะนำฉบับย่อภายในแอป
-6.  **การแจ้งเตือนข้อผิดพลาด**: หากมีปัญหาการเชื่อมต่อ **ไอคอนกระดิ่ง** จะปรากฏขึ้นใน AppBar แตะเพื่อดูข้อความแสดงข้อผิดพลาดและตัวเลือกในการเปิดการตั้งค่าอุปกรณ์ที่เกี่ยวข้อง
+void handle_jpg_still() {
+  camera_fb_t * fb = NULL;
+  esp_err_t res = ESP_OK;
+  size_t _jpg_buf_len = 0;
+  uint8_t * _jpg_buf = NULL;
 
----
+  fb = esp_camera_fb_get();
+  if (!fb) {
+    Serial.println("Camera capture failed");
+    server.send_P(404, "text/plain", "Camera capture failed");
+    return;
+  }
 
-## การแก้ไขปัญหา
+  if (fb->format != PIXFORMAT_JPEG) {
+    bool jpeg_converted = frame2jpg(fb, 80, &_jpg_buf, &_jpg_buf_len);
+    esp_camera_fb_return(fb);
+    fb = NULL;
+    if (!jpeg_converted) {
+      Serial.println("JPEG compression failed");
+      server.send_P(500, "text/plain", "JPEG compression failed");
+      return;
+    }
+  } else {
+    _jpg_buf = fb->buf;
+    _jpg_buf_len = fb->len;
+  }
 
-* **"ไม่ได้รับอนุญาตบลูทูธ"**: ไปที่การตั้งค่าแอปของอุปกรณ์ของคุณและตรวจสอบให้แน่ใจว่าได้เปิดใช้งานสิทธิ์บลูทูธสำหรับแอปนี้แล้ว
-* **"บลูทูธปิดอยู่"**: เปิดบลูทูธในการตั้งค่าอุปกรณ์ของคุณ
-* **"บลูทูธไม่ได้เชื่อมต่อ"**:
-    * ตรวจสอบให้แน่ใจว่าโมดูลบลูทูธ/ESP32 ของคุณเปิดอยู่และสามารถค้นพบได้
-    * จับคู่อุปกรณ์ Android ของคุณกับโมดูลบลูทูธในการตั้งค่า Android
-    * สำหรับ ESP32 ตรวจสอบให้แน่ใจว่าชื่ออุปกรณ์บลูทูธในแอปตรงกับชื่อที่ตั้งค่าใน `SerialBT.begin()`
-* **"ข้อผิดพลาดการเชื่อมต่อ WiFi"**:
-    * ตรวจสอบให้แน่ใจว่า ESP32-CAM ของคุณเปิดอยู่และ Access Point กำลังทำงาน
-    * เชื่อมต่ออุปกรณ์ Android ของคุณเข้ากับเครือข่าย WiFi ของ ESP32
-    * ตรวจสอบว่าที่อยู่ IP ในการตั้งค่าแอปตรงกับที่อยู่ IP ของ ESP32
-    * ตรวจสอบ Serial Monitor ของ ESP32 ของคุณสำหรับข้อผิดพลาดของเซิร์ฟเวอร์
-* **ปัญหาสตรีมกล้อง**:
-    * ตรวจสอบว่า `streamType` ในการตั้งค่าแอปถูกต้อง (`mjpeg` สำหรับสตรีมต่อเนื่อง)
-    * ตรวจสอบว่า ESP32-CAM ทำงานอยู่และเซิร์ฟเวอร์กำลังทำงาน
-* **มอเตอร์ไม่ตอบสนอง**:
-    * ตรวจสอบ Serial Monitor บนบอร์ดหุ่นยนต์ของคุณเพื่อดูว่าได้รับคำสั่งหรือไม่
-    * ตรวจสอบว่าโค้ดควบคุมมอเตอร์บนหุ่นยนต์ของคุณกำลังวิเคราะห์และดำเนินการตามคำสั่งที่ได้รับอย่างถูกต้อง
-    * ตรวจสอบให้แน่ใจว่าไดรเวอร์มอเตอร์และมอเตอร์ของคุณเชื่อมต่อสายไฟและจ่ายไฟอย่างถูกต้อง
+  server.setContentLength(_jpg_buf_len);
+  server.send_P(200, "image/jpeg", (const char *)_jpg_buf);
 
----
+  if (fb) {
+    esp_camera_fb_return(fb);
+  } else if (_jpg_buf) {
+    free(_jpg_buf);
+  }
+}
 
-แอปพลิเคชันนี้สร้างโดย **[join845]**
+void setup() {
+  Serial.begin(115200);
+  Serial.setDebugOutput(true);
+  Serial.println("\nESP32-CAM Robot Controller initializing...");
+
+  camera_config_t config;
+  config.ledc_channel = LEDC_CHANNEL_0;
+  config.ledc_timer = LEDC_TIMER_0;
+  config.pin_d0 = Y2_GPIO_NUM;
+  config.pin_d1 = Y3_GPIO_NUM;
+  config.pin_d2 = Y4_GPIO_NUM;
+  config.pin_d3 = Y5_GPIO_NUM;
+  config.pin_d4 = Y6_GPIO_NUM;
+  config.pin_d5 = Y7_GPIO_NUM;
+  config.pin_d6 = Y8_GPIO_NUM;
+  config.pin_d7 = Y9_GPIO_NUM;
+  config.pin_xclk = XCLK_GPIO_NUM;
+  config.pin_pclk = PCLK_GPIO_NUM;
+  config.pin_vsync = VSYNC_GPIO_NUM;
+  config.pin_href = HREF_GPIO_NUM;
+  config.pin_siod = SIOD_GPIO_NUM;
+  config.pin_sioc = SIOC_GPIO_NUM;
+  config.pin_pwdn = PWDN_GPIO_NUM;
+  config.pin_reset = RESET_GPIO_NUM;
+  config.xclk_freq_hz = 20000000;
+  config.pixel_format = PIXFORMAT_JPEG; 
+  config.frame_size = FRAMESIZE_SVGA;
+  config.jpeg_quality = 10;
+  config.fb_count = 2;
+
+  esp_err_t err = esp_camera_init(&config);
+  if (err != ESP_OK) {
+    Serial.printf("Camera init failed with error 0x%x\n", err);
+    return;
+  }
+  Serial.println("Camera initialized.");
+
+  Serial.print("Setting up AP (Access Point)... ");
+  WiFi.softAP(ssid, password);
+
+  IPAddress myIP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(myIP);
+  Serial.print("Connect to this WiFi network: ");
+  Serial.println(ssid);
+  Serial.println("Set your Flutter app's WiFi IP to: " + myIP.toString());
+
+  server.on("/control", HTTP_POST, []() {
+    Serial.println("Control command received via HTTP POST.");
+    if (server.hasArg("plain")) {
+      handleCommand(server.arg("plain"));
+    }
+    server.send(200, "text/plain", "OK");
+  });
+
+  server.on("/stream", HTTP_GET, handle_jpg_stream);
+  server.on("/capture", HTTP_GET, handle_jpg_still);
+
+  server.begin();
+  Serial.println("HTTP server started.");
+}
+
+void loop() {
+  server.handleClient();
+##Arduino Uno/Nano พร้อม Bluetooth Module HC-05/HC-06 C++
+
+#include <SoftwareSerial.h>
+#include <ArduinoJson.h>
+
+SoftwareSerial bluetoothSerial(10, 11); 
+
+void setMotorSpeed(int speed) {
+  Serial.print("Setting motor speed to: ");
+  Serial.println(speed);
+}
+
+void moveForward() {
+  Serial.println("Robot: Moving Forward!");
+}
+
+void moveBackward() {
+  Serial.println("Robot: Moving Backward!");
+}
+
+void turnLeft() {
+  Serial.println("Robot: Turning Left!");
+}
+
+void turnRight() {
+  Serial.println("Robot: Turning Right!");
+}
+
+void stopMotors() {
+  Serial.println("Robot: Stopping!");
+}
+
+void activateLineFollowMode() {
+  Serial.println("Robot: Activating Line Follow Mode!");
+}
+
+void handleCommand(String jsonCommand) {
+  Serial.print("Received Bluetooth JSON: ");
+  Serial.println(jsonCommand);
+
+  StaticJsonDocument<256> doc;
+  DeserializationError error = deserializeJson(doc, jsonCommand);
+
+  if (error) {
+    Serial.print(F("deserializeJson() failed: "));
+    Serial.println(error.f_str());
+    return;
+  }
+
+  const char* action = doc["action"];
+  int speed = doc["speed"] | 0;
+
+  Serial.print("Action: "); Serial.println(action);
+  Serial.print("Speed: "); Serial.println(speed);
+
+  setMotorSpeed(speed);
+
+  if (strcmp(action, "forward") == 0) {
+    moveForward();
+  } else if (strcmp(action, "backward") == 0) {
+    moveBackward();
+  } else if (strcmp(action, "left") == 0) {
+    turnLeft();
+  } else if (strcmp(action, "right") == 0) {
+    turnRight();
+  } else if (strcmp(action, "stop") == 0) {
+    stopMotors();
+  } else if (strcmp(action, "line") == 0) {
+    activateLineFollowMode();
+  } else if (strcmp(action, "camera") == 0) {
+    Serial.println("Camera mode requested (not applicable for Arduino Uno/Nano).");
+  }
+}
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("Arduino Bluetooth Robot Controller Initializing...");
+
+  bluetoothSerial.begin(9600);
+  Serial.println("Bluetooth Serial started at 9600 baud.");
+}
+
+void loop() {
+  if (bluetoothSerial.available()) {
+    String command = bluetoothSerial.readStringUntil('\n');
+    command.trim();
+    handleCommand(command);
+  }
+}
+1.3 ESP32 พร้อม Bluetooth Classic ในตัว
+C++
+
+#include "BluetoothSerial.h"
+#include <ArduinoJson.h>
+
+#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
+#error Bluetooth is not enabled! Please run `make menuconfig` to enable it.
+#endif
+
+BluetoothSerial SerialBT;
+
+void setMotorSpeed(int speed) {
+  Serial.print("Setting motor speed to: ");
+  Serial.println(speed);
+}
+
+void moveForward() {
+  Serial.println("Robot: Moving Forward!");
+}
+
+void moveBackward() {
+  Serial.println("Robot: Moving Backward!");
+}
+
+void turnLeft() {
+  Serial.println("Robot: Turning Left!");
+}
+
+void turnRight() {
+  Serial.println("Robot: Turning Right!");
+}
+
+void stopMotors() {
+  Serial.println("Robot: Stopping!");
+}
+
+void activateLineFollowMode() {
+  Serial.println("Robot: Activating Line Follow Mode!");
+}
+
+void handleCommand(String jsonCommand) {
+  Serial.print("Received Bluetooth JSON: ");
+  Serial.println(jsonCommand);
+
+  StaticJsonDocument<256> doc;
+  DeserializationError error = deserializeJson(doc, jsonCommand);
+
+  if (error) {
+    Serial.print(F("deserializeJson() failed: "));
+    Serial.println(error.f_str());
+    return;
+  }
+
+  const char* action = doc["action"];
+  int speed = doc["speed"] | 0;
+
+  Serial.print("Action: "); Serial.println(action);
+  Serial.print("Speed: "); Serial.println(speed);
+
+  setMotorSpeed(speed);
+
+  if (strcmp(action, "forward") == 0) {
+    moveForward();
+  } else if (strcmp(action, "backward") == 0) {
+    moveBackward();
+  } else if (strcmp(action, "left") == 0) {
+    turnLeft();
+  } else if (strcmp(action, "right") == 0) {
+    turnRight();
+  } else if (strcmp(action, "stop") == 0) {
+    stopMotors();
+  } else if (strcmp(action, "line") == 0) {
+    activateLineFollowMode();
+  } else if (strcmp(action, "camera") == 0) {
+    Serial.println("Camera mode requested (not applicable for non-ESP32-CAM).");
+  }
+}
+
+void setup() {
+  Serial.begin(115200);
+  Serial.println("\nESP32 Bluetooth Robot Controller initializing...");
+
+  SerialBT.begin("ESP32_Robot");
+  Serial.println("Bluetooth device started, named 'ESP32_Robot'.");
+}
+
+void loop() {
+  if (SerialBT.available()) {
+    String command = SerialBT.readStringUntil('\n');
+    command.trim();
+    handleCommand(command);
+  }
+}
